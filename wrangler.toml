@@ -1,0 +1,9 @@
+name = "btgo-bot"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+# EOD cron runs at 20:00 and 21:00 UTC to cover EDT (UTC-4) and EST (UTC-5).
+# shouldRunEod() checks the NY wall-clock time and only fires at exactly 4 PM ET.
+# LeetCode daily challenge resets at midnight UTC.
+[triggers]
+crons = ["5 20,21 * * 1-5", "5 0 * * *"]
