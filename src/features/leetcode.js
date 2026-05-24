@@ -65,12 +65,25 @@ export function formatChallengePost(challenge) {
 
 export async function postDailyChallenge(env) {
   const challenge = await getDailyChallenge();
+  if (await threadExistsForDate(env, challenge.date)) return;
   const name = buildThreadName(challenge);
   const content = formatChallengePost(challenge);
   await createChallengeThread(env, env.DISCORD_LEETCODE_CHANNEL_ID, name, content);
 }
 
-async function createChallengeThread(env, channelId, name, content) {
+// Checks active threads in the channel for one already named with this date.
+export async function threadExistsForDate(env, date) {
+  const data = await discordApi(
+    `/guilds/${env.DISCORD_LEETCODE_GUILD_ID}/threads/active`,
+    {},
+    env.DISCORD_BOT_TOKEN,
+  );
+  return data.threads.some(
+    (t) => t.parent_id === env.DISCORD_LEETCODE_CHANNEL_ID && t.name.includes(date),
+  );
+}
+
+export async function createChallengeThread(env, channelId, name, content) {
   // Creates a standalone public thread in a text channel, then posts into it.
   const thread = await discordApi(
     `/channels/${channelId}/threads`,

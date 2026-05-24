@@ -1,7 +1,8 @@
 // Add new commands here — they are automatically registered and routed.
 import { btgoCommand } from './btgo.js';
+import { leetcodeCommand } from './leetcode.js';
 
-const commands = [btgoCommand];
+const commands = [btgoCommand, leetcodeCommand];
 
 export const commandMap = Object.fromEntries(commands.map((c) => [c.name, c]));
 
