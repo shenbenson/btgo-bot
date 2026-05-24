@@ -12,7 +12,6 @@ const DAILY_QUERY = `
         title
         difficulty
         acRate
-        topicTags { name }
       }
     }
   }
@@ -46,7 +45,6 @@ export function buildThreadName(challenge) {
 
 export function formatChallengePost(challenge) {
   const { question, link, date } = challenge;
-  const tags = question.topicTags.map((t) => t.name).join(', ');
   const acRate = Number(question.acRate).toFixed(1);
   const diffEmoji = { Easy: '🟢', Medium: '🟡', Hard: '🔴' }[question.difficulty] ?? '⚪';
   const url = `https://leetcode.com${link}`;
@@ -55,12 +53,9 @@ export function formatChallengePost(challenge) {
     `## 📅 LeetCode Daily — ${date}`,
     `**${question.frontendQuestionId}. ${question.title}**`,
     `${diffEmoji} **${question.difficulty}** · Acceptance: **${acRate}%**`,
-    tags ? `Tags: ${tags}` : null,
     '',
     `🔗 <${url}>`,
-  ]
-    .filter((line) => line !== null)
-    .join('\n');
+  ].join('\n');
 }
 
 export async function postDailyChallenge(env) {
