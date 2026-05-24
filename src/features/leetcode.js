@@ -79,24 +79,30 @@ export async function threadExistsForDate(env, date) {
 }
 
 export async function createChallengeThread(env, channelId, name, content) {
-  // Creates a standalone public thread in a text channel, then posts into it.
-  const thread = await discordApi(
-    `/channels/${channelId}/threads`,
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        name,
-        type: 11, // PUBLIC_THREAD
-        auto_archive_duration: 1440,
-      }),
-    },
-    env.DISCORD_BOT_TOKEN,
-  );
+  const channel = await discordApi(`/channels/${channelId}`, {}, env.DISCORD_BOT_TOKEN);
 
-  await discordApi(
-    `/channels/${thread.id}/messages`,
-    { method: 'POST', body: JSON.stringify({ content }) },
-    env.DISCORD_BOT_TOKEN,
-  );
+  if (channel.type === 15) {
+    // Forum channel — create post with initial message in one call
+    await discordApi(
+      `/channels/${channelId}/threads`,
+      { method: 'POST', body: JSON.stringify({ name, message: { content } }) },
+      env.DISCORD_BOT_TOKEN,
+    );
+  } else {
+    // Text channel — create thread then post message
+    const thread = await discordApi(
+      `/channels/${channelId}/threads`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ name, type: 11, auto_archive_duration: 1440 }),
+      },
+      env.DISCORD_BOT_TOKEN,
+    );
+    await discordApi(
+      `/channels/${thread.id}/messages`,
+      { method: 'POST', body: JSON.stringify({ content }) },
+      env.DISCORD_BOT_TOKEN,
+    );
+  }
 }
 
